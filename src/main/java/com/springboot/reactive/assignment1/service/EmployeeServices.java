@@ -30,8 +30,7 @@ public class EmployeeServices {
                          employeeRequest.getEmpCity(),employeeRequest.getEmpPhone());
 
         EmpSkill empSkill= new EmpSkill(employeeRequest.getEmpId(), employeeRequest.getJavaExp(), employeeRequest.getSpringExp());
-        kafkaTemplate.send(KafkaConstants.TOPIC,employeeRequest);
-        log.info("Message send successfully");
+
         return this.employeeRepository.existsByEmpId(employeeRequest.getEmpId())
                 .flatMap(aBoolean -> {
                     if(aBoolean){
@@ -43,9 +42,13 @@ public class EmployeeServices {
                     }
                     else{
                         return Mono.zip(employeeRepository.save(employee),empSkillRepository.save(empSkill))
-                                .map(t->new EmployeeResponse(t.getT1().getEmpId(),t.getT1().getEmpName(),
-                                        t.getT1().getEmpCity(),t.getT1().getEmpPhone(),t.getT2().getJavaExp(),
-                                        t.getT2().getSpringExp(),"Created")
+                                .map(t->{
+                                    kafkaTemplate.send(KafkaConstants.TOPIC,employeeRequest);
+                                    log.info("Message send successfully");
+                                     return  new EmployeeResponse(t.getT1().getEmpId(),t.getT1().getEmpName(),
+                                                    t.getT1().getEmpCity(),t.getT1().getEmpPhone(),t.getT2().getJavaExp(),
+                                                    t.getT2().getSpringExp(),"Created");
+                                        }
                                 ).log("Employee created");
 
                     }

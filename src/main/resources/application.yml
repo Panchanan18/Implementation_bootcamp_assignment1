@@ -34,4 +34,4 @@ astra.db:
   keyspace: bootcamp
   application.token: AstraCS:lJIdXyprMfFAkGIGBhwLbOtU:30705cfdcade1c530c26d24a7adf5a8ee1e78f6aeb2a1c1302a5a00bec25ba1d
 server:
-  port: 8085
+  port: 8081
